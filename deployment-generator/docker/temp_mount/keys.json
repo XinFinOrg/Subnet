@@ -1,0 +1,22 @@
+{
+  "key1": {
+    "PrivateKey": "0x9fc5578ddfa5bd5e1459770a24532aaf49d3c5f46d50ebaed7c457c3f46bb83d",
+    "0x": "0x2CFE46Cd960372Db84F7f280e65EFaC6c6a69500",
+    "short": "2CFE46Cd960372Db84F7f280e65EFaC6c6a69500"
+  },
+  "key2": {
+    "PrivateKey": "0x6a6de51f789479f8d562cae6dedcf8b3a2d57aa6e2433eb0368dd098587fc508",
+    "0x": "0x88df051D27C04E7498E293030045118e004791c3",
+    "short": "88df051D27C04E7498E293030045118e004791c3"
+  },
+  "key3": {
+    "PrivateKey": "0x017a0e7e5760e501d44a7b52b385495a88da5441595c2e0f2fff151d3c5132e7",
+    "0x": "0x1f5701c7E83D24487219ca14F6F6DD461Da72337",
+    "short": "1f5701c7E83D24487219ca14F6F6DD461Da72337"
+  },
+  "Grandmaster": {
+    "PrivateKey": "0xdfc35b23e7afb972c7f9b8600e3fd58d15b4f7e2c50d4bffa60b955a9f03350b",
+    "0x": "0xDe5b54E8e7B585153Add32F472e8D545E5d42A82",
+    "short": "De5b54E8e7B585153Add32F472e8D545E5d42A82"
+  }
+}

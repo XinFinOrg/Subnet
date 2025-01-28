@@ -1,0 +1,24 @@
+Start under generated/ directory
+
+1. Deploy Subnet nodes
+  docker compose --env-file docker-compose.env --profile machine1 pull
+  docker compose --env-file docker-compose.env --profile machine1 up -d
+
+
+2. After 60 seconds, confirm the Subnet is running correctly
+  ./scripts/check-mining.sh
+
+3. Deploy Checkpoint Smart Contract (CSC)
+  docker pull xinfinorg/csc:feature-v0.2.1
+  docker run --env-file contract_deploy.env --network generated_docker_net xinfinorg/csc:feature-v0.2.1 full
+
+4. Add CSC configuration to common.env
+  - copy step 3. output CHECKPOINT_CONTRACT to common.env
+
+5. Start services (relayer, backend, frontend)
+  docker compose --env-file docker-compose.env --profile services pull
+  docker compose --env-file docker-compose.env --profile services up -d
+
+6. Confirm Subnet services through browser UI
+  Frontend: http://127.0.0.1:6000
+  Relayer: http://127.0.0.1:4000

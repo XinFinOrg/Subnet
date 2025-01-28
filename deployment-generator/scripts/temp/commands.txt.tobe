@@ -1,0 +1,32 @@
+1. deploy subnet
+  docker compose --env-file docker-compose.env --profile machine1 pull
+  docker compose --env-file docker-compose.env --profile machine1 up -d
+
+** if many machines add instructions for other machines here
+
+2. check subnet is running !! add default check script 
+
+
+3. deploy checkpoint smart contract       << commands are different here now 
+  docker run --env-file common.env   \
+    -v $(pwd)/../generated/:/app/config       \
+    --network host                             \
+    --entrypoint './docker/deploy_proxy.sh' xinfinorg/csc:v0.1.1
+
+4.                 start services and frontend
+  docker compose --env-file docker-compose.env --profile services pull
+  docker compose --env-file docker-compose.env --profile services up -d
+
+#OPTIONAL XDC Zero
+
+2.5 subnet wallet transfer
+
+5. deploy reverse csc
+
+6. deploy XDC-Zero
+
+#optional optional Subswap (requires XDC Zero)
+6.5 deploy application (subswap)
+
+7. restart relayer
+

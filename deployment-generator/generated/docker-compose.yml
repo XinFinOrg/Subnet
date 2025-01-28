@@ -1,0 +1,118 @@
+version: '3.7'
+services:
+  subnet1:
+    image: xinfinorg/xdcsubnets:feature-v1-release
+    volumes:
+      - ./xdcchain1:/work/xdcchain
+      - ${SUBNET_CONFIG_PATH}/genesis.json:/work/genesis.json
+    restart: always
+    env_file:
+      - ${SUBNET_CONFIG_PATH}/subnet1.env
+    profiles:
+      - machine1
+    ports:
+      - '20303:20303'
+      - '8545:8545'
+      - '9555:9555'
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.11
+  subnet2:
+    image: xinfinorg/xdcsubnets:feature-v1-release
+    volumes:
+      - ./xdcchain2:/work/xdcchain
+      - ${SUBNET_CONFIG_PATH}/genesis.json:/work/genesis.json
+    restart: always
+    env_file:
+      - ${SUBNET_CONFIG_PATH}/subnet2.env
+    profiles:
+      - machine1
+    ports:
+      - '20304:20304'
+      - '8546:8546'
+      - '9556:9556'
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.12
+  subnet3:
+    image: xinfinorg/xdcsubnets:feature-v1-release
+    volumes:
+      - ./xdcchain3:/work/xdcchain
+      - ${SUBNET_CONFIG_PATH}/genesis.json:/work/genesis.json
+    restart: always
+    env_file:
+      - ${SUBNET_CONFIG_PATH}/subnet3.env
+    profiles:
+      - machine1
+    ports:
+      - '20305:20305'
+      - '8547:8547'
+      - '9557:9557'
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.13
+  bootnode:
+    image: xinfinorg/xdcsubnets:feature-v1-release
+    restart: always
+    env_file: ${SUBNET_CONFIG_PATH}/common.env
+    volumes:
+      - ./bootnodes:/work/bootnodes
+    entrypoint:
+      - bash
+      - /work/start-bootnode.sh
+    command:
+      - '-verbosity'
+      - '6'
+      - '-nodekey'
+      - bootnode.key
+    ports:
+      - 20301:20301/tcp
+      - 20301:20301/udp
+    profiles:
+      - machine1
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.14
+  relayer:
+    image: xinfinorg/xdc-relayer:feature-v1-release
+    restart: always
+    env_file: ${SUBNET_CONFIG_PATH}/common.env
+    ports:
+      - '4000:4000'
+    profiles:
+      - services
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.15
+  stats:
+    image: xinfinorg/subnet-stats-service:feature-v1-release
+    restart: always
+    env_file: ${SUBNET_CONFIG_PATH}/common.env
+    volumes:
+      - ./stats-service/logs:/app/logs
+    ports:
+      - '3000:3000'
+    profiles:
+      - services
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.16
+  frontend:
+    image: xinfinorg/subnet-frontend:feature-v1-release
+    restart: always
+    env_file: ${SUBNET_CONFIG_PATH}/common.env
+    volumes:
+      - ${SUBNET_CONFIG_PATH}/common.env:/app/.env.local
+    ports:
+      - '6000:6000'
+    profiles:
+      - services
+    networks:
+      docker_net:
+        ipv4_address: 192.168.25.17
+networks:
+  docker_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.25.0/24

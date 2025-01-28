@@ -1,0 +1,9 @@
+{
+  "validators": [
+    "0x3EcD14847fb5D77538287C0E8981Bb5Ab2912f13",
+    "0x788B23DdE7a11e57EDcAAd028f91aCA8eC2D77CC",
+    "0x2367CF803b8D559fc61ABf8938904b8DC72C077F"
+  ],
+  "gap": 450,
+  "epoch": 900
+}
