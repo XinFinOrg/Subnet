@@ -5,10 +5,9 @@ Object.freeze(config);
 module.exports = {
   genSubnetNodes,
   genBootNode,
-  genObserver,
   genServices,
   genComposeEnv,
-  injectMacConfig,
+  injectNetworkConfig,
 };
 
 function genSubnetNodes(machine_id, num, start_num = 1) {
@@ -32,9 +31,12 @@ function genSubnetNodes(machine_id, num, start_num = 1) {
       env_file: [config_path],
       profiles: [compose_profile],
       ports: [
-        `${port}:${port}`,
-        `${rpcport}:${rpcport}`,
-        `${wsport}:${wsport}`,
+        `${port}:${port}/tcp`,
+        `${port}:${port}/ucp`,
+        `${rpcport}:${rpcport}/tcp`,
+        `${rpcport}:${rpcport}/ucp`,
+        `${wsport}:${wsport}/tcp`,
+        `${wsport}:${wsport}/ucp`,
       ],
     };
   }
@@ -55,19 +57,6 @@ function genBootNode(machine_id) {
     profiles: [machine],
   };
   return bootnode;
-}
-
-function genObserver(machine_id) {
-  const config_path = "${SUBNET_CONFIG_PATH}/common.env";
-  const machine = "machine" + machine_id.toString();
-  const observer = {
-    image: `xinfinorg/devnet:${config.version.observer}`,
-    restart: "always",
-    env_file: config_path,
-    ports: ["20302:30303", "7545:8545", "7555:8555"],
-    profiles: [machine],
-  };
-  return observer;
 }
 
 function genServices(machine_id) {
@@ -116,7 +105,7 @@ function genComposeEnv() {
   return conf_path;
 }
 
-function injectMacConfig(compose_object) {
+function injectNetworkConfig(compose_object) {
   // networks:
   //   docker_net:
   //     driver: bridge
