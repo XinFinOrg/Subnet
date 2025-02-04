@@ -32,11 +32,11 @@ function genSubnetNodes(machine_id, num, start_num = 1) {
       profiles: [compose_profile],
       ports: [
         `${port}:${port}/tcp`,
-        `${port}:${port}/ucp`,
+        `${port}:${port}/udp`,
         `${rpcport}:${rpcport}/tcp`,
-        `${rpcport}:${rpcport}/ucp`,
+        `${rpcport}:${rpcport}/udp`,
         `${wsport}:${wsport}/tcp`,
-        `${wsport}:${wsport}/ucp`,
+        `${wsport}:${wsport}/udp`,
       ],
     };
   }
@@ -128,14 +128,20 @@ function injectNetworkConfig(compose_object) {
   let record_services_ip = {};
 
   const ip_string_base = "192.168.25.";
-  let start_ip = 11;
+  let start_ip_subnet = 11;
+  let start_ip_service = 51;
   Object.entries(compose_object["services"]).forEach((entry) => {
     const [key, value] = entry;
-    const component_ip = ip_string_base + parseInt(start_ip);
-    start_ip += 1;
+    if (key.startsWith("subnet")){
+      const component_ip = ip_string_base + parseInt(start_ip_subnet);
+      start_ip_subnet += 1;
+    } else {
+      const component_ip = ip_string_base + parseInt(start_ip_service);
+      start_ip_service += 1;
+    }
     if (!net.isIP(component_ip)) {
       console.log(
-        `ERROR: found invalid IP assignment ${component_ip} in mac mode`
+        `ERROR: found invalid IP assignment ${component_ip}`
       );
       process.exit(1);
     }
