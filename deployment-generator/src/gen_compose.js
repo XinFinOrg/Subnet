@@ -132,11 +132,12 @@ function injectNetworkConfig(compose_object) {
   let start_ip_service = 51;
   Object.entries(compose_object["services"]).forEach((entry) => {
     const [key, value] = entry;
+    let component_ip;
     if (key.startsWith("subnet")){
-      const component_ip = ip_string_base + parseInt(start_ip_subnet);
+      component_ip = ip_string_base + parseInt(start_ip_subnet);
       start_ip_subnet += 1;
     } else {
-      const component_ip = ip_string_base + parseInt(start_ip_service);
+      component_ip = ip_string_base + parseInt(start_ip_service);
       start_ip_service += 1;
     }
     if (!net.isIP(component_ip)) {
