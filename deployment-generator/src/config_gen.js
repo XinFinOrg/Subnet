@@ -73,8 +73,8 @@ function configSanityCheck(config) {
     process.exit(1);
   }
 
-  if (config.num_machines === 0 || config.num_subnet === 0) {
-    console.log("NUM_MACHINE and NUM_SUBNET cannot be 0");
+  if (config.num_machines < 1 || config.num_subnet < 1) {
+    console.log("NUM_MACHINE and NUM_SUBNET must be 1 or more");
     process.exit(1);
   }
 
