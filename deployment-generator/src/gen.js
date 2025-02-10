@@ -59,28 +59,15 @@ Object.entries(subnet_services).forEach((entry) => {
 // checkpoint smartcontract deployment config
 let deployment_json = gen_other.genDeploymentJson(keys);
 
-if (config.operating_system === "mac") {
-  doc, (ip_record = gen_compose.injectMacConfig(doc));
-  commonconf = gen_env.genServicesConfigMac(ip_record);
-  subnetconf = [];
-  for (let i = 1; i <= config.num_subnet; i++) {
-    subnetconf.push(gen_env.genSubnetConfigMac(i, keys, ip_record));
-  }
-  deployconf = gen_env.genContractDeployEnvMac();
-} else if (config.operating_system === "linux") {
-  commonconf = gen_env.genServicesConfig();
-  subnetconf = [];
-  for (let i = 1; i <= config.num_subnet; i++) {
-    subnetconf.push(gen_env.genSubnetConfig(i, keys));
-  }
-  deployconf = gen_env.genContractDeployEnv();
-} else {
-  console.log(`ERROR: unknown OS ${config.operating_system} not supported`);
-  process.exit(1);
+doc, ip_record = gen_compose.injectNetworkConfig(doc);
+commonconf = gen_env.genServicesConfig(ip_record);
+subnetconf = [];
+for (let i = 1; i <= config.num_subnet; i++) {
+  subnetconf.push(gen_env.genSubnetConfig(i, keys, ip_record));
 }
+deployconf = gen_env.genContractDeployEnv(ip_record);
 
 const compose_content = yaml.dump(doc, {});
-const compose_conf = gen_compose.genComposeEnv();
 
 // deployment commands list
 const commands = gen_other.genCommands();
@@ -153,13 +140,6 @@ function writeGenerated(output_dir) {
       }
     );
   }
-
-  fs.writeFileSync(`${output_dir}/docker-compose.env`, compose_conf, (err) => {
-    if (err) {
-      console.error(err);
-      exit();
-    }
-  });
 
   deployment_json = JSON.stringify(deployment_json, null, 2);
   fs.writeFileSync(

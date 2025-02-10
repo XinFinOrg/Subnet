@@ -5,10 +5,8 @@ Object.freeze(config);
 module.exports = {
   genSubnetNodes,
   genBootNode,
-  genObserver,
   genServices,
-  genComposeEnv,
-  injectMacConfig,
+  injectNetworkConfig,
 };
 
 function genSubnetNodes(machine_id, num, start_num = 1) {
@@ -16,7 +14,7 @@ function genSubnetNodes(machine_id, num, start_num = 1) {
   for (let i = start_num; i < start_num + num; i++) {
     const node_name = "subnet" + i.toString();
     const volume = "./xdcchain" + i.toString() + ":/work/xdcchain";
-    const config_path = "${SUBNET_CONFIG_PATH}/subnet" + i.toString() + ".env";
+    const config_path = "${PWD}/subnet" + i.toString() + ".env";
     const compose_profile = "machine" + machine_id.toString();
     const port = 20302 + i;
     const rpcport = 8544 + i;
@@ -25,16 +23,19 @@ function genSubnetNodes(machine_id, num, start_num = 1) {
       image: `xinfinorg/xdcsubnets:${config.version.subnet}`,
       volumes: [
         volume,
-        "${SUBNET_CONFIG_PATH}/genesis.json:/work/genesis.json",
+        "${PWD}/genesis.json:/work/genesis.json",
       ],
       restart: "always",
       network_mode: "host",
       env_file: [config_path],
       profiles: [compose_profile],
       ports: [
-        `${port}:${port}`,
-        `${rpcport}:${rpcport}`,
-        `${wsport}:${wsport}`,
+        `${port}:${port}/tcp`,
+        `${port}:${port}/udp`,
+        `${rpcport}:${rpcport}/tcp`,
+        `${rpcport}:${rpcport}/udp`,
+        `${wsport}:${wsport}/tcp`,
+        `${wsport}:${wsport}/udp`,
       ],
     };
   }
@@ -42,7 +43,7 @@ function genSubnetNodes(machine_id, num, start_num = 1) {
 }
 
 function genBootNode(machine_id) {
-  let config_path = "${SUBNET_CONFIG_PATH}/common.env";
+  let config_path = "${PWD}/common.env";
   const machine = "machine" + machine_id.toString();
   const bootnode = {
     image: `xinfinorg/xdcsubnets:${config.version.bootnode}`,
@@ -57,21 +58,8 @@ function genBootNode(machine_id) {
   return bootnode;
 }
 
-function genObserver(machine_id) {
-  const config_path = "${SUBNET_CONFIG_PATH}/common.env";
-  const machine = "machine" + machine_id.toString();
-  const observer = {
-    image: `xinfinorg/devnet:${config.version.observer}`,
-    restart: "always",
-    env_file: config_path,
-    ports: ["20302:30303", "7545:8545", "7555:8555"],
-    profiles: [machine],
-  };
-  return observer;
-}
-
 function genServices(machine_id) {
-  const config_path = "${SUBNET_CONFIG_PATH}/common.env";
+  const config_path = "${PWD}/common.env";
   const machine = "services";
   const frontend = {
     image: `xinfinorg/subnet-frontend:${config.version.frontend}`,
@@ -110,13 +98,7 @@ function genServices(machine_id) {
   return services;
 }
 
-function genComposeEnv() {
-  // conf_path = `SUBNET_CONFIG_PATH=${config.deployment_path}/generated/`;
-  conf_path = `SUBNET_CONFIG_PATH=$PWD`
-  return conf_path;
-}
-
-function injectMacConfig(compose_object) {
+function injectNetworkConfig(compose_object) {
   // networks:
   //   docker_net:
   //     driver: bridge
@@ -139,14 +121,21 @@ function injectMacConfig(compose_object) {
   let record_services_ip = {};
 
   const ip_string_base = "192.168.25.";
-  let start_ip = 11;
+  let start_ip_subnet = 11;
+  let start_ip_service = 51;
   Object.entries(compose_object["services"]).forEach((entry) => {
     const [key, value] = entry;
-    const component_ip = ip_string_base + parseInt(start_ip);
-    start_ip += 1;
+    let component_ip;
+    if (key.startsWith("subnet")){
+      component_ip = ip_string_base + parseInt(start_ip_subnet);
+      start_ip_subnet += 1;
+    } else {
+      component_ip = ip_string_base + parseInt(start_ip_service);
+      start_ip_service += 1;
+    }
     if (!net.isIP(component_ip)) {
       console.log(
-        `ERROR: found invalid IP assignment ${component_ip} in mac mode`
+        `ERROR: found invalid IP assignment ${component_ip}`
       );
       process.exit(1);
     }
