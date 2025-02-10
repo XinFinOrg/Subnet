@@ -151,9 +151,5 @@ function injectNetworkConfig(compose_object) {
 
   compose_object["networks"] = network;
 
-  if (config.num_machines == 1){    //inject docker_net IP instead of machine IP if single machine deployment
-    config.ip_1 = record_services_ip["bootnode"]
-  }
-
   return compose_object, record_services_ip;
 }
